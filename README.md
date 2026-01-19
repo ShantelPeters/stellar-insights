@@ -78,48 +78,89 @@ Ndii Intelligence Dashboard provides **deep insights into Stellar payment networ
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Full-Stack Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                  Frontend (React + TS)                  │
-│  Dashboard | Corridors | Anchors | Analytics            │
-└──────────────────┬──────────────────────────────────────┘
-                   │
-┌──────────────────▼──────────────────────────────────────┐
-│           API Layer (REST Endpoints)                    │
-│   /payments | /corridors | /anchors | /liquidity        │
-└──────────────────┬──────────────────────────────────────┘
-                   │
-┌──────────────────▼──────────────────────────────────────┐
-│         Metrics Engine & Data Processing                │
-│   Success Scoring | Corridor Analysis | Liquidity       │
-└──────────────────┬──────────────────────────────────────┘
-                   │
-┌──────────────────▼──────────────────────────────────────┐
-│            Data Layer & Indexing                        │
-│   Stellar RPC | Historical DB | Order Books             │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                Frontend (React + TypeScript)                │
+│         Dashboard | Corridors | Anchors | Analytics         │
+└──────────────────────────┬─────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│              REST API (Node.js + Express)                   │
+│    /api/payments | /api/corridors | /api/anchors            │
+└──────────────────────────┬─────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│      Backend: Analytics Engine (Rust Core)                  │
+│  Ingests RPC → Computes Metrics → Generates Snapshots       │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │ • Payment Success Rate  • Settlement Latency           │ │
+│  │ • Liquidity Depth       • Corridor Scores              │ │
+│  │ • Anchor Reliability    • TVL Trends                   │ │
+│  └────────────────────────────┬──────────────────────────┘ │
+│                                │                            │
+│                                ▼                            │
+│                    Hash Snapshot & Push to Chain            │
+└──────────────────────────┬─────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│     Smart Contract (Soroban, Rust) - On-Chain Anchor       │
+│  Stores: Analytics Hashes | Timestamps | Verification Data  │
+│  Functions: submit_snapshot() | get_snapshot() | verify()   │
+└──────────────────────────┬─────────────────────────────────┘
+                           │
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│              Data Sources (Stellar Blockchain)              │
+│    RPC | Horizon API | Ledger | Order Books | Trades       │
+└──────────────────────────────────────────────────────────────┘
 ```
+
+### Key Insight: Separation of Concerns
+- **Frontend**: Visualization & UX
+- **API Layer**: Data exposure & routing
+- **Backend (Rust)**: Computation, scoring, intelligence
+- **Smart Contract**: Verification, immutability, trustlessness
+- **Blockchain**: Immutable source of truth
 
 ---
 
-## 🚀 Tech Stack
+## 🚀 Full Tech Stack
 
-**Frontend**
+**Frontend (React SPA)**
 - React 18 with TypeScript for type-safe components
-- Vite 5 for lightning-fast builds
+- Vite 5 for lightning-fast builds and HMR
 - shadcn-ui for consistent, accessible UI components
 - Tailwind CSS for responsive design
 - Recharts for financial data visualization
-
-**State & Data**
 - TanStack React Query for efficient data fetching
 - React Router v6 for seamless navigation
-- React Hook Form + Zod for validated forms
+
+**Backend (Analytics Engine)**
+- Rust for high-performance data processing
+- Stellar SDK for blockchain data ingestion
+- PostgreSQL/TimescaleDB for time-series metrics
+- Redis for caching and real-time data
+- Bull Queue for job processing
+
+**Smart Contract (On-Chain Verification)**
+- Soroban (Stellar's smart contract platform)
+- Rust for contract development
+- Cryptographic hashing for data integrity
+- Timestamped snapshots for audit trails
+
+**DevOps & Infrastructure**
+- Docker for containerization
+- GitHub Actions for CI/CD
+- Vercel/Netlify for frontend hosting
+- AWS or DigitalOcean for backend
 
 **Developer Experience**
-- TypeScript for type safety
+- TypeScript for type safety (frontend)
 - ESLint for code quality
 - Vitest + React Testing Library for testing
 - Hot module reloading during development
@@ -250,24 +291,35 @@ See [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for data integration details.
 - [x] Corridor analysis
 - [x] Anchor tracking
 - [x] Mock data structure
+- [x] Documentation & architecture
 
-### Phase 2: Real Data Integration
+### Phase 2: Backend & Smart Contract
+- [ ] Rust analytics engine
 - [ ] Stellar RPC integration
+- [ ] Metrics computation pipeline
+- [ ] Soroban smart contract deployment
+- [ ] On-chain snapshot anchoring
+
+### Phase 3: Real Data Integration
 - [ ] Historical data indexing
 - [ ] Real payment metrics
 - [ ] Live liquidity feeds
+- [ ] On-chain verification UI
+- [ ] Audit trail display
 
-### Phase 3: Advanced Analytics
+### Phase 4: Advanced Analytics & Automation
 - [ ] Predictive success scoring
 - [ ] Optimal routing engine
 - [ ] Alert system
 - [ ] Custom reports
+- [ ] Data export (CSV, JSON)
 
-### Phase 4: Scale & Optimize
+### Phase 5: Scale & Ecosystem
 - [ ] Performance optimization
 - [ ] Mobile-first improvements
-- [ ] Advanced filtering
-- [ ] Data export
+- [ ] API webhooks for integrations
+- [ ] Multi-language support
+- [ ] Community contributions
 
 ---
 
@@ -354,29 +406,121 @@ Output goes to `dist/` directory.
 
 ## 🎓 Portfolio Impact
 
-**This project demonstrates:**
-- Full-stack architecture thinking (frontend → API → data)
-- Financial metrics & analytics design
-- Real-world problem solving (payment reliability)
-- Production-grade React/TypeScript practices
-- Stellar ecosystem knowledge
-- UI/UX for complex data visualization
+**This project demonstrates advanced capabilities:**
+- **Full-stack architecture**: Frontend (React/TS) → API (Node.js) → Backend (Rust) → Smart Contract (Soroban)
+- **Blockchain integration**: Stellar RPC, Horizon, Soroban contracts
+- **Financial metrics design**: Corridor scoring, anchor reliability, liquidity analysis
+- **On-chain verification**: Trustless analytics via smart contracts
+- **Production-grade practices**: TypeScript, Rust, testing, deployment
+- **Systems thinking**: Data pipeline, metric computation, verification layer
+
+**Credibility points:**
+- Turns dashboard into on-chain infrastructure
+- Makes analytics verifiable and tamper-proof
+- Useful for foundations, anchors, compliance teams
+- Addresses real Stellar ecosystem problems
+- Clean separation of concerns (frontend/backend/contract)
 
 **Great talking points for:**
-- FinTech roles
-- Blockchain/Web3 positions
-- Data analytics engineering
+- FinTech & Payment Systems roles
+- Blockchain/Web3 Engineer positions
+- Backend/Systems Engineer interviews
+- Full-stack Rust + TypeScript teams
 - Product management interviews
+- Smart contract development roles
 
 ---
 
-## 📞 Support
+## �️ Smart Contract (Soroban, Rust)
+
+### Purpose
+Anchor analytics attestations on-chain for tamper-proof verification.
+
+### What It Does
+- **Stores periodic hashes** of computed analytics (corridor scores, anchor reliability)
+- **Timestamps each update** for audit trails
+- **Enables verification**: Anyone can verify off-chain analytics against on-chain proofs
+
+### Contract Interface
+```rust
+pub fn submit_snapshot(hash: Bytes, epoch: u64)      // Store new snapshot
+pub fn get_snapshot(epoch: u64) -> Bytes             // Retrieve specific snapshot
+pub fn latest_snapshot() -> (Bytes, u64, u64)        // Get most recent (hash, epoch, timestamp)
+pub fn verify_snapshot(hash: Bytes) -> bool          // Verify off-chain data
+```
+
+### Why It Matters
+✅ **Makes analytics verifiable** – Anyone can audit results  
+✅ **Enables trustless reporting** – No single point of failure  
+✅ **Useful for** foundations, anchors, compliance teams, regulators  
+✅ **Transforms product** – From dashboard to on-chain infrastructure  
+
+---
+
+## 🔧 Backend (Rust, Core Engine)
+
+### Purpose
+Compute, score, and publish Stellar network health metrics.
+
+### Key Responsibilities
+- **Ingest** Stellar RPC and Horizon data
+- **Build** corridor and anchor metrics
+- **Compute** deterministic analytics snapshots
+- **Generate** verifiable hashes
+- **Push** results to Soroban contract
+
+### Data Flow
+```
+Stellar RPC → Analytics Engine → Snapshot Hash → Soroban Contract
+       ↓              ↓                 ↓
+  Ledger Data   Metrics Math    On-Chain Proof
+                     ↓
+              REST API → Frontend
+```
+
+### Metrics Computed
+| Metric | Source | Purpose |
+|--------|--------|---------|
+| Payment Success Rate | Payment operations | Corridor reliability |
+| Liquidity Depth | Order book snapshots | Available capacity |
+| Settlement Latency | Transaction timestamps | Payment speed |
+| Anchor Reliability | Success/failure counts | Issuer trust score |
+| TVL Trends | Ledger state | Ecosystem health |
+
+### Why Backend Is Central
+- **All intelligence lives here** – Complex metrics computation
+- **Smart contract only certifies** – Validates hashes, stores proofs
+- **Frontend only visualizes** – Displays outputs, reads contract
+- **Clean architecture** – Separation of concerns, testability
+
+---
+
+## 🌐 Why This Architecture Is Strong
+
+### For Credibility
+✅ **Smart contract adds verifiability**, not just a dashboard  
+✅ **Rust backend does real data science** – Not trivial computation  
+✅ **Clean separation of concerns** – Each layer has one job  
+✅ **Production-ready** – Auditable, scalable, maintainable  
+
+### For Users
+✅ **Trust the data** – On-chain proofs verify accuracy  
+✅ **Integrate easily** – Use REST API or read smart contract  
+✅ **Historical audit trails** – Timestamped snapshots on-chain  
+✅ **Network resilience** – No single point of failure  
+
+---
+
+## �📞 Support
 
 For issues, questions, or suggestions:
 - Open an [issue](https://github.com/Ndifreke000/stellar-insights/issues)
 - Check [existing discussions](https://github.com/Ndifreke000/stellar-insights/discussions)
-- Email: [your email]
+- Review [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for technical details
+- Check [FEATURES.md](./docs/FEATURES.md) for use cases
 
 ---
 
 **Built with ❤️ for the Stellar ecosystem**
+
+*Making payment analytics verifiable, trustless, and on-chain.*
